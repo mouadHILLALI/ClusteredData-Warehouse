@@ -1,0 +1,31 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/warehouseapp
+      SPRING_DATASOURCE_USERNAME: mouad
+      SPRING_DATASOURCE_PASSWORD: password
+      SERVER_PORT: 8081
+    depends_on:
+      - db
+    volumes:
+      - maven-repo:/root/.m2
+
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: mouad
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: warehouseapp
+    ports:
+      - "5433:5432"
+    volumes:
+      - db_data:/var/lib/postgresql
+
+volumes:
+  db_data:
+  maven-repo:
