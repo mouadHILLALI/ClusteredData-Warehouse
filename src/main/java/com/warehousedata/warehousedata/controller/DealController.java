@@ -1,8 +1,10 @@
 package com.warehousedata.warehousedata.controller;
 
 
-import com.warehousedata.warehousedata.entity.Deal;
+import com.warehousedata.warehousedata.dto.DealRequestDto;
+import com.warehousedata.warehousedata.dto.DealResponseDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,7 +19,7 @@ public class DealController {
 
 
     @PostMapping("/import")
-    public void importDeals(@RequestBody List<Deal> deals) {
-
+    public ResponseEntity<List<DealResponseDto>> importDeals(@RequestBody List<DealRequestDto> deals) {
+        return null;
     }
 }
