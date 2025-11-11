@@ -3,6 +3,7 @@ package com.warehousedata.warehousedata.controller;
 
 import com.warehousedata.warehousedata.dto.DealRequestDto;
 import com.warehousedata.warehousedata.dto.DealResponseDto;
+import com.warehousedata.warehousedata.service.DealService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,9 +18,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DealController {
 
+    private final DealService dealService;
 
     @PostMapping("/import")
     public ResponseEntity<List<DealResponseDto>> importDeals(@RequestBody List<DealRequestDto> deals) {
-        return null;
+        return ResponseEntity.ok(dealService.saveDeals(deals));
     }
 }

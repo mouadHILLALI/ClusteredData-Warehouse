@@ -3,7 +3,6 @@ package com.warehousedata.warehousedata.service.Impl;
 import com.warehousedata.warehousedata.dto.DealRequestDto;
 import com.warehousedata.warehousedata.dto.DealResponseDto;
 import com.warehousedata.warehousedata.entity.Deal;
-import com.warehousedata.warehousedata.mapper.DealMapper;
 import com.warehousedata.warehousedata.repository.DealRepository;
 import com.warehousedata.warehousedata.service.CurrencyValidator;
 import com.warehousedata.warehousedata.service.DealService;
@@ -24,7 +23,6 @@ import java.util.stream.Collectors;
 public class DealServiceImpl implements DealService {
 
     private final DealRepository dealRepository;
-    private final DealMapper dealMapper;
     private final CurrencyValidator currencyValidator;
 
     @Override
@@ -42,22 +40,28 @@ public class DealServiceImpl implements DealService {
         log.info("Invalid deals: {}", deals.size() - validDeals.size());
 
         return validDeals.stream()
-                .peek(deal -> log.info("Saving deal {}", deal))
+                .filter(deal -> {
+                    boolean isDuplicate = dealRepository.existsById(deal.getId());
+                    if (isDuplicate) {
+                        log.warn("Duplicate deal skipped: {}", deal);
+                    }
+                    return !isDuplicate;
+                })
                 .map(dealRepository::save)
-                .map(dealMapper::toResDto)
+                .map(this::toResDto)
                 .toList();
+
     }
 
 
     private Set<Deal> filterInvalidDealRows(List<DealRequestDto> deals) {
         if (deals == null) return new HashSet<>();
         log.debug("Filtering invalid rows from {} deals", deals.size());
-
         return deals.stream()
                 .peek(deal -> {
                     if (!isValidDeal(deal)) log.warn("Invalid deal found and skipped: {}", deal);
                 })
-                .filter(this::isValidDeal).map(dealMapper::toEntity)
+                .filter(this::isValidDeal).map(this::toEntity)
                 .collect(Collectors.toSet());
     }
 
@@ -73,6 +77,28 @@ public class DealServiceImpl implements DealService {
                 deal.dealAmount() != null && deal.dealAmount().compareTo(BigDecimal.ZERO) > 0 &&
                 deal.dealTimeStamp() != null &&
                 currencyValidator.validateCurrency(deal.fromCurrency(), deal.toCurrency());
+    }
+
+    private Deal toEntity(DealRequestDto dto) {
+        if (dto == null) return null;
+        Deal deal = new Deal();
+        deal.setId(dto.id());
+        deal.setFromCurrency(dto.fromCurrency());
+        deal.setToCurrency(dto.toCurrency());
+        deal.setDealAmount(dto.dealAmount());
+        deal.setDealTimestamp(dto.dealTimeStamp());
+        return deal;
+    }
+
+    private DealResponseDto toResDto(Deal deal) {
+        if (deal == null) return null;
+        return new DealResponseDto(
+                deal.getId(),
+                deal.getFromCurrency(),
+                deal.getToCurrency(),
+                deal.getDealTimestamp(),
+                deal.getDealAmount()
+        );
     }
 
 }

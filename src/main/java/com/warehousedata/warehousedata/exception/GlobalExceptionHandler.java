@@ -14,6 +14,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidCurrencyFormat.class)
     public ResponseEntity<ErrorRes> handleInvalidCurrencyFormat(InvalidCurrencyFormat invalidCurrencyFormat) {
-        return new ResponseEntity<>(new ErrorRes(INVALID_CURRENCY_MESSAGE,HttpStatus.BAD_REQUEST,LocalDateTime.now()), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ErrorRes(INVALID_CURRENCY_MESSAGE, HttpStatus.BAD_REQUEST, LocalDateTime.now()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DuplicateRequestException.class)
+    public ResponseEntity<ErrorRes> handleDuplicateRequest(DuplicateRequestException duplicateRequestException) {
+        return new ResponseEntity<>(new ErrorRes(duplicateRequestException.getMessage(), HttpStatus.BAD_REQUEST, LocalDateTime.now()), HttpStatus.BAD_REQUEST);
     }
 }
