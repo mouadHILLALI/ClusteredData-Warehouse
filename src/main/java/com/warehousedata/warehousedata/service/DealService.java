@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface DealService {
     List<DealResponseDto> saveDeals(List<DealRequestDto> deals);
+
+    DealResponseDto save(DealRequestDto dealRequestDto);
 }

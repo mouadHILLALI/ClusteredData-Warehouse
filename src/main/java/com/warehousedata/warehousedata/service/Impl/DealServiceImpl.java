@@ -3,6 +3,7 @@ package com.warehousedata.warehousedata.service.Impl;
 import com.warehousedata.warehousedata.dto.DealRequestDto;
 import com.warehousedata.warehousedata.dto.DealResponseDto;
 import com.warehousedata.warehousedata.entity.Deal;
+import com.warehousedata.warehousedata.exception.DuplicateRequestException;
 import com.warehousedata.warehousedata.repository.DealRepository;
 import com.warehousedata.warehousedata.service.CurrencyValidator;
 import com.warehousedata.warehousedata.service.DealService;
@@ -51,6 +52,23 @@ public class DealServiceImpl implements DealService {
                 .map(this::toResDto)
                 .toList();
 
+    }
+
+    @Override
+    @Transactional
+    public DealResponseDto save(DealRequestDto dealRequestDto) {
+        log.info("Saving deal: {}", dealRequestDto);
+        if (dealRepository.existsById(dealRequestDto.id())) {
+            log.warn("deal already exist: {}", dealRequestDto);
+            throw new DuplicateRequestException("Deal already exists");
+        }
+        if (currencyValidator.validateCurrency(dealRequestDto.fromCurrency(), dealRequestDto.toCurrency())) {
+            log.info("Currency validated: {}", dealRequestDto);
+            log.info("saving deal...");
+            return toResDto(dealRepository.save(toEntity(dealRequestDto)));
+        }
+        log.warn("Invalid deal: {}", dealRequestDto);
+        return null;
     }
 
 
