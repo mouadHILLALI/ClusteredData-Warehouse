@@ -6,7 +6,10 @@ RUN mvn dependency:go-offline -B
 
 COPY ./src ./src
 
-RUN mvn clean package -DskipTests
+RUN mvn clean test
+
+
+RUN mvn clean package
 
 FROM eclipse-temurin:21-jdk
 WORKDIR /app
